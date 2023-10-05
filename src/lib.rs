@@ -32,24 +32,17 @@ impl Screen {
 
     fn neighbours(&self, x: usize, y: usize) -> u8 {
         let mut counter = 0;
-        for i in 0..=2 {
-            let y = y as i32;
+        for i in (if y == 0 { 1 } else { 0 })..=2 {
             let cur_y = y + i - 1;
-            if cur_y < 0 {
-                continue;
-            }
-            if let Some(line) = self.get(cur_y as usize) {
-                for j in 0..=2 {
-                    let x = x as i32;
-                    let cur_x: i32 = x + j - 1;
+            if let Some(line) = self.get(cur_y) {
+                for j in (if x == 0 { 1 } else { 0 })..=2 {
+                    let cur_x = x + j - 1;
 
                     if cur_y == y && cur_x == x {
                         continue;
                     }
-                    if cur_x < 0 {
-                        continue;
-                    }
-                    if let Some(Cell::Alive) = line.get(cur_x as usize) {
+
+                    if let Some(Cell::Alive) = line.get(cur_x) {
                         counter += 1;
                     }
                 }
@@ -65,7 +58,9 @@ impl Iterator for Screen {
     fn next(&mut self) -> Option<Self::Item> {
         clear_screen();
         print!("{}", &self);
+
         let prev_frame = self.clone();
+
         for y in 0..self.height {
             for x in 0..self.width {
                 let cur = self[y][x];
@@ -142,14 +137,6 @@ pub fn clear_screen() {
         .expect("cls command failed to start")
         .wait()
         .expect("failed to wait");
-    if cfg!(target_os = "windows") {
-    } else {
-        Command::new("clear")
-            .spawn()
-            .expect("clear command failed to start")
-            .wait()
-            .expect("failed to wait");
-    };
 }
 
 #[cfg(not(windows))]
