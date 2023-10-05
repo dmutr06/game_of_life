@@ -63,6 +63,7 @@ impl Screen {
 impl Iterator for Screen {
     type Item = ();
     fn next(&mut self) -> Option<Self::Item> {
+        clear_screen();
         print!("{}", &self);
         let prev_frame = self.clone();
         for y in 0..self.height {
